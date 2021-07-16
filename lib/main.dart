@@ -1,174 +1,146 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  // 最初に表示するWidget
+  runApp(MyTodoApp());
+}
 
-class MyApp extends StatelessWidget {
+class MyTodoApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      // 右上に表示される"debug"ラベルを消す
+      debugShowCheckedModeBanner: false,
+      // アプリ名
+      title: 'My Todo App',
       theme: ThemeData(
+        // テーマカラー
         primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          // 左側のアイコン
-          leading: Icon(Icons.arrow_back),
-          // タイトルテキスト
-          title: Text('Hello'),
-          // 右側のアイコン一覧
-          actions: <Widget>[
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.favorite),
+      // リスト一覧画面を表示
+      home: TodoListPage(),
+    );
+  }
+}
+
+// リスト一覧画面用Widget
+class TodoListPage extends StatefulWidget {
+  @override
+  _TodoListPageState createState() => _TodoListPageState();
+}
+
+class _TodoListPageState extends State<TodoListPage> {
+  // Todoリストのデータ
+  List<String> todoList = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      // AppBarを表示し、タイトルも設定
+      appBar: AppBar(
+        title: Text('リスト一覧'),
+      ),
+      // データを元にListViewを作成
+      body: ListView.builder(
+        itemCount: todoList.length,
+        itemBuilder: (context, index) {
+          return Card(
+            child: ListTile(
+              title: Text(todoList[index]),
             ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.more_vert),
-            ),
-          ],
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // "push"で新規画面に遷移
+          // リスト追加画面から渡される値を受け取る
+          final newListText = await Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) {
+              // 遷移先の画面としてリスト追加画面を指定
+              return TodoAddPage();
+            }),
+          );
+          if (newListText != null) {
+            // キャンセルした場合は newListText が null となるので注意
+            setState(() {
+              // リスト追加
+              todoList.add(newListText);
+            });
+          }
+        },
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class TodoAddPage extends StatefulWidget {
+  @override
+  _TodoAddPageState createState() => _TodoAddPageState();
+}
+
+class _TodoAddPageState extends State<TodoAddPage> {
+  // 入力されたテキストをデータとして持つ
+  String _text = '';
+
+  // データを元に表示するWidget
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('リスト追加'),
+      ),
+      body: Container(
+        // 余白を付ける
+        padding: EdgeInsets.all(64),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ListTile(
-              leading: Image.network('https://placehold.jp/50x50.png'),
-              title: Text('ListTile'),
-              subtitle: Text('subtitle'),
-              trailing: Icon(Icons.more_vert),
+            // 入力されたテキストを表示
+            Text(_text, style: TextStyle(color: Colors.blue)),
+            const SizedBox(height: 8),
+            // テキスト入力
+            TextField(
+              // 入力されたテキストの値を受け取る（valueが入力されたテキスト）
+              onChanged: (String value) {
+                // データが変更したことを知らせる（画面を更新する）
+                setState(() {
+                  // データを変更
+                  _text = value;
+                });
+              },
             ),
-            // 影のついたカードUIが作れる
-            Card(
-              child: Container(
-                height: 60,
-                width: double.infinity,
-                child: Text('Card'),
-              ),
-            ),
-            // 組み合わせることもOK
-            Card(
-              child: ListTile(
-                leading: Image.network('https://placehold.jp/50x50.png'),
-                title: Text('Card and ListTile'),
-                subtitle: Text('subtitle'),
-                trailing: Icon(Icons.more_vert),
-              ),
-            ),
+            const SizedBox(height: 8),
             Container(
-              height: 125,
-              padding: EdgeInsets.all(4),
-              // childrenを指定してリスト表示
-              child: ListView(
-                children: <Widget>[
-                  Container(
-                    height: 50,
-                    color: Colors.blue[600],
-                    child: Text('Item 1'),
-                  ),
-                  Container(
-                    height: 50,
-                    color: Colors.blue[300],
-                    child: Text('Item 2'),
-                  ),
-                  Container(
-                    height: 50,
-                    color: Colors.blue[100],
-                    child: Text('Item 3'),
-                  ),
-                ],
-              ),
-            ),
-            TextButton(
-              onPressed: () {/* ボタンがタップされた時の処理 */},
-              child: Text('click here'),
-            ),
-            OutlinedButton(
-              onPressed: () {/* ボタンがタップされた時の処理 */},
-              child: Text('click here'),
-            ),
-            ElevatedButton(
-              onPressed: () {/* ボタンがタップされた時の処理 */},
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red,
-              ),
-              child: Text('click here'),
-            ),
-            ElevatedButton(
-              onPressed: null,
-              child: Text('click here'),
-            ),
-            IconButton(
-              onPressed: () {},
-              // 表示アイコン
-              icon: Icon(Icons.thumb_up),
-              // アイコン色
-              color: Colors.pink,
-              // サイズ
-              iconSize: 64,
-            ),
-            TextButton.icon(
-              onPressed: () {},
-              icon: Icon(Icons.thumb_up),
-              label: Text('Good'),
-            ),
-            OutlinedButton.icon(
-              onPressed: () {},
-              icon: Icon(Icons.favorite),
-              label: Text('Like'),
-            ),
-            ElevatedButton.icon(
-              onPressed: () {},
-              icon: Icon(Icons.flight),
-              label: Text('Flight'),
-            ),
-            Container(
+              // 横幅いっぱいに広げる
               width: double.infinity,
-              height: 60,
-              child: Row(
-                // 均等配置
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(color: Colors.red, child: Text('左')),
-                  Container(color: Colors.blue, child: Text('均等配置')),
-                  Container(color: Colors.green, child: Text('右')),
-                ],
+              // リスト追加ボタン
+              child: ElevatedButton(
+                onPressed: () {
+                  // "pop"で前の画面に戻る
+                  // "pop"の引数から前の画面にデータを渡す
+                  Navigator.of(context).pop(_text);
+                },
+                child: Text('リスト追加', style: TextStyle(color: Colors.white)),
               ),
             ),
+            const SizedBox(height: 8),
             Container(
+              // 横幅いっぱいに広げる
               width: double.infinity,
-              height: 60,
-              child: Row(
-                // 均等配置
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(color: Colors.red, child: Text('左')),
-                  Container(color: Colors.blue, child: Text('均等配置')),
-                  Container(color: Colors.green, child: Text('右')),
-                ],
-              ),
-            ),
-            Container(
-              width: double.infinity,
-              height: 60,
-              child: Row(
-                // 均等配置
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(color: Colors.red, child: Text('左')),
-                  Container(color: Colors.blue, child: Text('均等配置')),
-                  Container(color: Colors.green, child: Text('右')),
-                ],
+              // キャンセルボタン
+              child: TextButton(
+                // ボタンをクリックした時の処理
+                onPressed: () {
+                  // "pop"で前の画面に戻る
+                  Navigator.of(context).pop();
+                },
+                child: Text('キャンセル'),
               ),
             ),
           ],
-        ),
-        // body: Center(
-        //   child: Text('Hello World'),
-        // ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {},
-          child: Icon(Icons.favorite),
         ),
       ),
     );
